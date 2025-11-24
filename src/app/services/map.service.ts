@@ -3,6 +3,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { ToastController } from '@ionic/angular';
 import { LanguageService } from './language.service';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import { FeatureInfoService } from './feature-info.service';
 
 declare var M: any;
 declare var ol: any;
@@ -20,7 +21,7 @@ export class MapService {
   mapProj = 'EPSG:3857';
   centerMapTransformed: number[] = [] 
 
-  constructor(private toastController: ToastController, private languageService: LanguageService) { 
+  constructor(private toastController: ToastController, private languageService: LanguageService, private featureInfoService: FeatureInfoService) { 
     M.config('SQL_WASM_URL', '/assets/external/api-cnig/');
   }
   //downloadZoom, downloadExtent y selectedProj vendrán con algún valor cuando el método se utilice al iniciar
@@ -38,6 +39,7 @@ export class MapService {
     if (profile) {
       await this.applyMapDataFromProfile(mapa, profile.application, downloadZoom, downloadExtent, selectedProj);
       await this.applyMapBackgroundsAndLayers(mapa, profile);
+      this.createInformationPlugin(mapa);
     }
     return mapa;
   }
@@ -131,6 +133,25 @@ export class MapService {
         }
       });
     });
+  }
+
+  private createInformationPlugin(mapa: any) {
+    const infoPlugin = new M.plugin.Information({
+      position: 'TL',
+      format: 'text/html'
+    });
+    mapa.addPlugin(infoPlugin);
+    setTimeout(() => {
+      this.featureInfoService.init(infoPlugin);
+    }, 500);    
+  }
+
+  deactivateFeatureInfo() {
+    this.featureInfoService.deactivate();
+  }
+
+  activateFeatureInfo() {
+    this.featureInfoService.activate();
   }
 
   addClickFunctionToEditableLayers(clickFn: Function) {

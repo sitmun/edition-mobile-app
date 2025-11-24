@@ -33,6 +33,9 @@ export class MapPage implements OnInit {
   isSaveModalOpen = false;
   layerEdit: any = null;
   activeEdition = false;
+  geomEdition = false;
+  newGeometry: any = null;
+  unsavedChanges = false;
   attrData: any[] = [];
   featureAttr: Record<string, any> = {};
   featureAttrForm: FormGroup;
@@ -45,6 +48,7 @@ export class MapPage implements OnInit {
   imageValue: string | null = null;
   errorImg: string[] = [];
   imageAttr: string = '';
+  cameraBtnDisabled: boolean = true;
   downloadMap: boolean = false;
   offlineMap: boolean = false;
   zoom: number = 9;
@@ -275,15 +279,21 @@ export class MapPage implements OnInit {
     this.centerMapByFeature(this.feature);
     this.newPoint = newPoint;
     this.isFeatureModalOpen = true;
-    this.mapService.removeMoveInteraction(this.mapa);
+    //this.mapService.removeMoveInteraction(this.mapa);
     //inicializa campo imagen si algún campo ha sido definido anteriormente como imagen  
     if (this.imageAttr) {
       this.imageValue = this.featureAttrForm.value[this.imageAttr];
-    } 
+      this.enableCameraBtn();
+    } else {
+      this.disableCameraBtn();
+    }
   }
 
-  closeFeatureModal() {
+  closeFeatureModal(resetGeom: boolean) {
     this.isFeatureModalOpen = false;
+    if (resetGeom) {
+      this.newGeometry = null;
+    }
   }
 
   async openTocModal() {    
@@ -354,6 +364,9 @@ export class MapPage implements OnInit {
       this.attrData.push(data);
     }
     this.featureAttrForm = this.formBuilder.group(formControls);
+    this.featureAttrForm.valueChanges.subscribe(values => {
+      this.unsavedChanges = true;
+    });
   }
 
   async calculateFieldValue(value: any) {
@@ -390,6 +403,14 @@ export class MapPage implements OnInit {
     } else {
       formControls[attrData.key] = [value, null];
     }
+  }
+
+  enableCameraBtn() {
+    this.cameraBtnDisabled = false;
+  }
+
+  disableCameraBtn() {
+    this.cameraBtnDisabled = true;
   }
 
   onFeatureDateChange(key: string, event: any) {
@@ -432,10 +453,14 @@ export class MapPage implements OnInit {
         }
       } else {
         this.feature.setAttributes(this.featureAttr);
+        if (this.newGeometry) {
+          this.feature.setGeometry(this.newGeometry);
+        }
         console.log(`Editando feature con ID: ${this.feature.id}`);   
         this.addFeatureEdition(this.layerEdit.idLayer, 'updates');
       }
       this.newPoint = false;
+      this.unsavedChanges = false;
     } else {
       this.languageService.translateTag('map.invalidFeatureForm').subscribe(text => this.mapService.createToast(text, 'danger', 'top'));
     }
@@ -443,7 +468,7 @@ export class MapPage implements OnInit {
 
   centerMapByFeature(feature: any) {
     if(feature) {
-      const center = feature.getGeometry().coordinates;
+      const center = this.newGeometry ? this.newGeometry.coordinates : feature.getGeometry().coordinates;
       this.mapa.setCenter(center);
       this.mapa.setZoom(17);
     }
@@ -453,7 +478,7 @@ export class MapPage implements OnInit {
     console.log(`Eliminando feature con ID: ${this.feature.getId()}`);
     this.layerEdit.removeFeatures([this.feature]);
     this.addFeatureEdition(this.layerEdit.idLayer, 'deletes');
-    this.closeFeatureModal();
+    this.closeFeatureModal(true);
   }
 
   async addFeatureEdition(layer: string, operation: 'inserts' | 'deletes' | 'updates') {
@@ -545,6 +570,10 @@ export class MapPage implements OnInit {
     if (this.activeEdition) {
       this.layersTreeData.forEach(tn => this.treeviewService.toggleCheck(tn));
       this.currentEditionTask = node.task;
+      this.mapService.deactivateFeatureInfo();
+      this.mapa.getFeatureHandler().clearSelectedFeatures();
+    } else {
+      this.mapService.activateFeatureInfo();
     }
     this.layerEdit = this.mapa.getImpl().getAllLayerInGroup().find((l:any) => l.idLayer === node.action);
     this.layerEdit.extract = this.activeEdition;
@@ -573,10 +602,29 @@ export class MapPage implements OnInit {
     if (this.newPoint) {
       this.languageService.translateTag('map.editGeometryError').subscribe(text => this.mapService.createToast(text, 'warning', 'top'));
     } else {
-      const olFeature = this.feature.getImpl().getOLFeature();
-      this.mapService.addMoveInteraction(this.mapa, [olFeature], this.onMoveEnd.bind(this));
-      this.closeFeatureModal();
+      //const olFeature = this.feature.getImpl().getOLFeature();
+      //this.mapService.addMoveInteraction(this.mapa, [olFeature], this.onMoveEnd.bind(this));
+      this.geomEdition = true;
+      this.closeFeatureModal(false);
     }
+  }
+
+  saveGeom() {
+    const center = this.mapa.getCenter();
+    const newCoords = [center.x, center.y];
+    const featGeometry = this.feature.getGeometry();
+    this.newGeometry = {
+      type: featGeometry.type,
+      coordinates: newCoords
+    };
+    this.openFeatureModal(false);
+    this.geomEdition = false;
+    this.unsavedChanges = true;
+  }
+
+  cancelGeomEdition() {
+    this.openFeatureModal(false);
+    this.geomEdition = false;
   }
 
   onMoveEnd() {
@@ -697,7 +745,7 @@ export class MapPage implements OnInit {
         promptLabelHeader: prompt.header,
         promptLabelPhoto: prompt.gallery,
         promptLabelPicture: prompt.picture,
-        width: 200, // Controla el tamaño en bytes de la imagen
+        width: 3000, // Controla el tamaño en bytes de la imagen
       });
 
       console.log('Imagen:', image);

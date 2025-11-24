@@ -14,6 +14,14 @@ ion-fab-button {
     margin-bottom: 0.8rem;
 }
 
+.green-btn{
+    --background: green;
+}
+
+.red-btn{
+    --background: red;
+}
+
 ion-range {
     --knob-size: 1.5rem;
     --bar-height: 0.3rem;
@@ -70,6 +78,22 @@ ion-range {
     color: white;
 }
 
+.del-feat-btn {
+    --color: white;
+    --background: red;
+    --border-radius: 50%;
+}
+
+.save-feat-btn {
+    --color: white;
+    --background: green;
+    --border-radius: 50%;
+}
+
+.save-feat-btn.unsaved {
+    --background: red;
+}
+
 .active{
    --background: red;
     --border-radius: 25% !important; 
@@ -88,4 +112,14 @@ ion-range {
 .img-background{
   height: 20vw;
   width: 20vw;
+}
+
+.geomEditionPin {
+    position: absolute;
+    top: calc(50vh + 36px);
+    left: 50vw;
+    transform: translate(-50%, -100%);
+    color: orange;
+    pointer-events: none;
+    z-index: 10;
 }

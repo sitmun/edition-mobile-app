@@ -19,29 +19,40 @@
 
 <ion-content [fullscreen]="true" id="map-content">
   <ion-fab slot="fixed" vertical="top" horizontal="end">
-    <ion-fab-button (click)="openTocModal()">
+    <ion-fab-button (click)="openTocModal()" *ngIf="!geomEdition">
       <ion-icon name="layers"></ion-icon>
     </ion-fab-button>
     <!-- Botones condicionales según procendencia -->
     <ng-container *ngIf="!downloadMap; else downloadBtn">
-      <ion-fab-button (click)="createNewFeature()" [disabled]="!activeEdition" [ngClass]="{'disabled-btn' : !activeEdition}" >
+      <ion-fab-button (click)="createNewFeature()" [disabled]="!activeEdition" [ngClass]="{'disabled-btn' : !activeEdition}" *ngIf="!geomEdition">
         <ion-icon size="large" name="add"></ion-icon>
       </ion-fab-button>
-      <ion-fab-button *ngIf="!offlineMap" (click)="saveAllFeatures()" [disabled]="isFeatureEditionsEmpty()" [ngClass]="{'disabled-btn' : isFeatureEditionsEmpty()}" >
+      <ion-fab-button *ngIf="!offlineMap && !geomEdition" (click)="saveAllFeatures()" [disabled]="isFeatureEditionsEmpty()"
+        [ngClass]="{'disabled-btn' : isFeatureEditionsEmpty()}">
         <ion-icon name="cloud-upload"></ion-icon>
       </ion-fab-button>
     </ng-container>
     <ng-template #downloadBtn>
-      <ion-fab-button (click)="saveMap()">
+      <ion-fab-button (click)="saveMap()" *ngIf="!geomEdition">
         <ion-icon name="cloud-download"></ion-icon>
       </ion-fab-button>
     </ng-template>
+    <ion-fab-button (click)="saveGeom()" *ngIf="geomEdition" class="green-btn">
+      <ion-icon name="checkmark"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button (click)="cancelGeomEdition()" *ngIf="geomEdition" class="red-btn">
+      <ion-icon name="close"></ion-icon>
+    </ion-fab-button>
   </ion-fab>
   <ion-fab slot="fixed" vertical="top" horizontal="start">
-    <ion-fab-button *ngIf="bgTreeData.length > 0" (click)="openBgModal()">
+    <ion-fab-button *ngIf="!geomEdition && bgTreeData.length > 0" (click)="openBgModal()">
       <ion-icon name="grid"></ion-icon>
     </ion-fab-button>
   </ion-fab>
+
+  <div class="geomEditionPin" *ngIf="geomEdition">
+    <ion-icon name="pin" size="large"></ion-icon>
+  </div>
 
   <div #map id="map"></div>
 
@@ -165,7 +176,7 @@
           <ion-title *ngIf="newPoint">{{ 'map.addPoint' | translate }}</ion-title>
           <ion-title *ngIf="!newPoint">{{ 'map.editPoint' | translate }}</ion-title>
           <ion-buttons slot="end">
-            <ion-button (click)="closeFeatureModal()">
+            <ion-button (click)="closeFeatureModal(true)">
               <ion-icon name="close" size="large"></ion-icon>
             </ion-button>
           </ion-buttons>
@@ -179,28 +190,28 @@
                 <ion-icon slot="icon-only" name="location"></ion-icon>
               </ion-button>
             </div>
-            <div class="col-6"></div>
             <div class="col-2">
-              <ion-button shape="round" class="dl-btn mx-auto" (click)="onSaveModal()">
+              <ion-button class="dl-btn mx-auto camera-btn" shape="round" (click)="selectImg()" [hidden]="cameraBtnDisabled">
+                  <ion-icon slot="icon-only" name="camera"></ion-icon>
+                </ion-button>
+            </div>
+            <div class="col-4"></div>
+            <div class="col-2">
+              <ion-button shape="round" class="save-feat-btn mx-auto" [ngClass]="{ 'unsaved': unsavedChanges }" (click)="onSaveModal()">
                 <ion-icon slot="icon-only" name="save"></ion-icon>
               </ion-button>
             </div>
             <div class="col-2">
-              <ion-button shape="round" class="dl-btn mx-auto" (click)="onDeleteModal()">
+              <ion-button shape="round" class="del-feat-btn mx-auto" (click)="onDeleteModal()">
                 <ion-icon slot="icon-only" name="trash"></ion-icon>
               </ion-button>
             </div>
           </div>
           <div class="row attr-container">
-            <div class="row feature-attr">
-              <div class="d-flex align-items-center">
-                <ion-button class="dl-btn mx-auto" shape="round" (click)="selectImg()">
-                  <ion-icon slot="icon-only" name="camera"></ion-icon>
-                </ion-button>
-              </div>              
+            <div class="row feature-attr">           
               <div *ngIf="imageValue" class="position-relative d-inline-block feature-attr">
-                <ion-img [src]="imageValue" alt="Imagen Previsualizada" class="w-100" style="max-width: 80px;"></ion-img>
-                <ion-button fill="outline" color="light" class="position-absolute top-0 end-1 m-1" (click)="removeImg()">
+                <ion-img [src]="imageValue" alt="Imagen Previsualizada" class="w-100" style="max-width: 70vw;"></ion-img>
+                <ion-button fill="outline" color="light" class="position-absolute top-0 end-1 m-1" (click)="removeImg()" style="right: 0;">
                   <ion-icon name="trash" size="small" slot="icon-only"></ion-icon>
                 </ion-button>           
               </div>              

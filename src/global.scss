@@ -114,3 +114,28 @@ ion-modal.profile-modal {
         width: auto;
     }
 }
+
+@media only screen and (max-width: 1400px) {
+    .m-popup.m-collapsed {
+        top: calc(100vh - 112px) !important;
+    }
+    .m-popup.m-full {
+        top: 45vh !important;
+    }
+    .m-popup > div.m-content > div.m-body {
+        height: 38vh !important;
+    }
+
+    .list-img-sm, .list-img-container-sm {
+        height: 20vw;
+        width: 20vw;
+    }
+
+    .modal-img {
+        padding: 25vw;
+    }
+}
+
+.m-areas>div.m-area>div.m-panel.m-plugin-information {
+    display: none !important;
+}
