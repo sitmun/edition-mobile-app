@@ -1,12 +1,14 @@
 {
-    "home":{
+    "home": {
         "access": "Access",
         "instanceSelection": "Enter instance URL",
         "registerInstance": "Register",
         "user": "User",
         "password": "Password",
         "selectUser": "Select user",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "loginError": "Incorrect username or password",
+        "instanceRequired": "No instance has been registered"
     },
     "applist": {
         "title": "Applications",
@@ -60,12 +62,12 @@
         "editGeometryError": "You must save before editing the geometry",
         "noEditLayerSelected": "You must select the layer to edit first",
         "invalidFeatureForm": "There are required fields that are not filled in",
-         "prompt": {
+        "prompt": {
             "header": "Select image",
             "gallery": "Open gallery",
             "picture": "Take picture"
         },
-        "downloadLayers": "Downloaded layers" 
+        "downloadLayers": "Downloaded layers"
     },
     "exit": {
         "title": "Exit",
@@ -73,7 +75,7 @@
         "exit": "Exit",
         "continue": "Continue"
     },
-    "menu":{
+    "menu": {
         "title": "Profile",
         "exit": "Log out"
     },

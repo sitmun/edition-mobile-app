@@ -91,8 +91,8 @@ export class DownloadPage implements OnInit {
   }
 
   private async initPage(){
-    //datos mapa
-    this.profile = await this.authorizationService.getProfile(this.app.id, this.ter.id);    
+    this.instancesService.setAppTerritory(this.app.id, this.ter.id);
+    this.profile = await this.authorizationService.getProfile(this.app.id, this.ter.id);
     this.layersTreeData = this.treeviewService.createLayersTreeData(this.profile);
     this.bgTreeData = this.treeviewService.createBackgroundsTreeData(this.profile);
     await this.getData();
@@ -151,9 +151,9 @@ export class DownloadPage implements OnInit {
       const encoded = encoder.encode(JSON.stringify(layers));
       this.estimatedSize = Math.round(encoded.length / (1024 * 1024) * 10) / 10;  //peso capas
 
-      //capa base
-      const resp = await this.proxyService.getbgLayerFileWeight(bgMapServices, this.extent, this.zoomValue, this.mapProjSelected);
-      this.estimatedSize += Math.round(resp.data.estimatedMbtilesSizeMb * 10) /10; //peso capa base
+      const resp = await this.proxyService.getbgLayerFileWeight(
+        bgMapServices, this.extent, this.zoomValue, this.mapProjSelected);
+      this.estimatedSize += Math.round(resp.data.estimatedMbtilesSizeMb * 10) / 10;
 
       //comprobar espacio disponible
       const info = await Device.getInfo();
@@ -181,23 +181,23 @@ export class DownloadPage implements OnInit {
 
   async downloadLayers() {
     this.alertModalOpen = false;
-    //envio http capa base
-    const mbtilesUrl = this.app.config.mbtilesUrl;
-    const bgMapServices = this.getmapServices();        
-    const jobId = await this.proxyService.sendbgLayerServices(bgMapServices, this.extent, this.zoomValue, this.mapProjSelected, mbtilesUrl);
+    this.instancesService.setAppTerritory(this.app.id, this.ter.id);
+    const bgMapServices = this.getmapServices();
+    const createResp = await this.proxyService.sendbgLayerServices(
+      bgMapServices, this.extent, this.zoomValue, this.mapProjSelected);
+    const jobHandle = createResp.data?.jobHandle ?? createResp.data;
     this.downloadProgress.type = 'download.progress-request';
-    this.downloadProgress.value = 0.01; //inicia progreso de petición
-    if (jobId.data !== '') {
+    this.downloadProgress.value = 0.01;
+    if (jobHandle) {
       await new Promise<void>((resolve) => {
         const checkStatus = async () => {
-          const resp = await this.proxyService.checkbgServices(jobId.data, mbtilesUrl);
-          console.log(`Procesando petición para capas base: `, resp);
+          const resp = await this.proxyService.checkbgServices(jobHandle);
           if (resp.data.processedTiles) {
-            this.downloadProgress.value = resp.data.processedTiles / resp.data.totalTiles; //progreso de petición
-          }          
-          if (resp.data.status === "COMPLETED") {
-            this.downloadProgress.value = 1; //finaliza progreso de petición
-            await this.storagebgLayer(jobId.data, mbtilesUrl);            
+            this.downloadProgress.value = resp.data.processedTiles / resp.data.totalTiles;
+          }
+          if (resp.data.status === 'COMPLETED') {
+            this.downloadProgress.value = 1;
+            await this.storagebgLayer(jobHandle);
             resolve();
           } else {
             setTimeout(checkStatus, 3000);
@@ -358,80 +358,49 @@ export class DownloadPage implements OnInit {
     console.log(`Tamaño total: ${this.layersSizeMBytes} MB`);
   }
 
-  private async storagebgLayer(jobId: string, mbtilesUrl: string) {
+  private async storagebgLayer(jobHandle: string) {
     this.downloadProgress.type = 'download.progress-file';
-    this.downloadProgress.value = 0.01; //inicia progreso de descarga
-    const id = this.app.id + '_' + this.ter.id; 
+    this.downloadProgress.value = 0.01;
+    const id = this.app.id + '_' + this.ter.id;
     const fileName = `bgMapa_${id}.mbtiles`;
-    //borra fichero previo si existe
     try {
       await Filesystem.deleteFile({
         path: fileName,
         directory: Directory.Data,
       });
     } catch (err) {
-        console.log(`Archivo no existe, no es necesario eliminarlo: ${err}`);
+      console.log(`Archivo no existe, no es necesario eliminarlo: ${err}`);
     }
-    const url = mbtilesUrl.concat(`/${jobId}/file`);
-    console.log(url);
 
-    Filesystem.addListener('progress', (progress) => {
-      this.downloadProgress.value = progress.bytes / progress.contentLength; //progreso de descarga
-      console.log(`Descargado ${progress.bytes} de ${progress.contentLength}`);
-      this.cdr.detectChanges(); //fuerza actualizacion de la vista      
-    });
+    await this.proxyService.downloadMbtilesFile(jobHandle, fileName);
+    this.downloadProgress.value = 1;
+    this.cdr.detectChanges();
 
-    await Filesystem.downloadFile({
-      url: url,
-      path: fileName,
-      directory: Directory.Data,
-      recursive: true,
-      progress: true,
-    });    
-    
-    console.log(`Fichero ${fileName} almacenado correctamente.`);
     const bg = this.bgTreeData.find((bg: TreeNode) => bg.checked);
     if (bg) {
       await this.databaseService.insertbgLayer(this.app.id, this.ter.id, bg.name, fileName);
     }
   }
 
-  private getmapServices(): any[]{ 
-    interface MapService {
-      url: string;
-      layers: string[];
-      type: string;
+  private getmapServices(): { serviceId: number; layerIds: number[] }[] {
+    const byService = new Map<number, Set<number>>();
+    const bg = this.bgTreeData.find((node: TreeNode) => node.checked);
+    if (!bg) {
+      return [];
     }
-    const mapServices: MapService[] = [];
-    let mapService: MapService = {
-        url: "",
-        layers: [],
-        type: "",
-      };  
-
-    const bg = this.bgTreeData.find((bg: TreeNode) => bg.checked);
-    if (bg) {      
-      const groupLayer = this.profile.groups.find((group: any) => group.id === bg.resource);
-      const bgLayers = this.profile.layers.filter((layer: any) => groupLayer.layers.includes(layer.id));      
-      bgLayers.map((layer: any) =>{
-        mapService.layers = layer.layers;
-        const service = this.profile.services.find((service: any) => service.id === layer.service);
-        mapService.url = service.url;
-        mapService.type = service.type;
-
-        const repeatedMapService = mapServices.some(s => {
-          s.url === mapService.url &&
-          s.type === mapService.type &&
-          JSON.stringify(s.layers) === JSON.stringify(mapService.layers)
-        });
-        if (!repeatedMapService) {
-          mapServices.push(mapService);
-        }
-      });
-    }else{
-      console.log("No se ha seleccionado capa base");
+    const groupLayer = this.profile.groups.find((group: any) => group.id === bg.resource);
+    const bgLayers = this.profile.layers.filter((layer: any) => groupLayer.layers.includes(layer.id));
+    for (const layer of bgLayers) {
+      const serviceId = layer.service;
+      if (!byService.has(serviceId)) {
+        byService.set(serviceId, new Set<number>());
+      }
+      byService.get(serviceId)!.add(layer.id);
     }
-    return mapServices;
+    return Array.from(byService.entries()).map(([serviceId, layerIds]) => ({
+      serviceId,
+      layerIds: Array.from(layerIds)
+    }));
   }
 
   backPage() {

@@ -1,44 +1,47 @@
 import { Injectable } from '@angular/core';
 import { Http } from '@capacitor-community/http';
-import { LoginService } from './login.service';
 import { InstancesService } from './instances.service';
+import { LoginService } from './login.service';
+import { authHeadersForUrl } from './trusted-origin.util';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthorizationService {
 
-  private filter: Function = (obj: any) => { return true;};
+  private filter: Function = (_obj: any) => true;
   authorizationUrl = '';
   private profileData: any;
 
-  constructor(private loginService: LoginService, private instancesServices: InstancesService) { }
+  constructor(
+    private loginService: LoginService,
+    private instancesServices: InstancesService
+  ) { }
 
   async getApplications() {
     const url = (await this.instancesServices.getInstanceUrl()).concat('/api/config/client/application');
-    console.log(url);
     const options = {
       url,
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Bearer '.concat(this.loginService.getToken())
+        Accept: 'application/json',
+        ...(await this.authHeaders(url))
       },
       params: {}
     };
-    this.filter = (a: any) => {return a.type === 'ED';};
+    this.filter = (a: any) => a.type === 'ED';
     return this.request(options, this.filterCallback.bind(this));
   }
 
   async getTerritoriesByApp(idApp: Number) {
-    const url = (await this.instancesServices.getInstanceUrl()).concat(`/api/config/client/application/${idApp}/territories`);
-    console.log(url);
+    const url = (await this.instancesServices.getInstanceUrl())
+      .concat(`/api/config/client/application/${idApp}/territories`);
     const options = {
       url,
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Bearer '.concat(this.loginService.getToken())
+        Accept: 'application/json',
+        ...(await this.authHeaders(url))
       },
       params: {}
     };
@@ -46,15 +49,15 @@ export class AuthorizationService {
   }
 
   async getProfile(idApp: Number, idTer: Number) {
-    //const url = this.authorizationUrl.concat(`/api/config/client/profile/${idApp}/${idTer}`);
-    const url = (await this.instancesServices.getInstanceUrl()).concat(`/api/config/client/profile/${idApp}/${idTer}`);
-    console.log(url);
+    this.instancesServices.setAppTerritory(idApp as number, idTer as number);
+    const url = (await this.instancesServices.getInstanceUrl())
+      .concat(`/api/config/client/profile/${idApp}/${idTer}`);
     const options = {
       url,
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Bearer '.concat(this.loginService.getToken())
+        Accept: 'application/json',
+        ...(await this.authHeaders(url))
       },
       params: {}
     };
@@ -63,6 +66,16 @@ export class AuthorizationService {
 
   getProfileData() {
     return this.profileData;
+  }
+
+  private async authHeaders(url: string) {
+    return authHeadersForUrl(
+      url,
+      await this.instancesServices.getInstanceUrl(),
+      await this.instancesServices.getMiddlewareBaseUrl(),
+      this.loginService.getAccessToken(),
+      this.loginService.getProxyToken()
+    );
   }
 
   private profileCallback(resp: any) {

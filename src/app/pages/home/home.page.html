@@ -21,7 +21,7 @@
   <div class="container">
     <div class="row">
       <div class="ion-padding" style="display: flex; justify-content: flex-end;">
-          <ion-button class="instanceBtn" (click)="openInstance()">
+          <ion-button id="instance-settings" class="instanceBtn" (click)="openInstance()">
             <ion-icon size="large" name="cog"></ion-icon>
           </ion-button>
       </div>
@@ -40,14 +40,14 @@
         <div class="container">
           <div class="row" *ngIf="networkConnected">
             <div class="col">
-              <ion-input class="login-input mx-auto" [placeholder]="'home.user' | translate" formControlName="user">
+              <ion-input id="login-user" class="login-input mx-auto" [placeholder]="'home.user' | translate" formControlName="user">
                 <ion-icon class="login-icon-left" slot="start" name="person"size="large"></ion-icon>
               </ion-input>
             </div>
           </div>
           <div class="row" *ngIf="networkConnected">
             <div class="col">
-              <ion-input class="login-input mx-auto" [placeholder]="'home.password' | translate" type="password" formControlName="password">
+              <ion-input id="login-password" class="login-input mx-auto" [placeholder]="'home.password' | translate" type="password" formControlName="password">
                 <ion-icon class="login-icon-left" slot="start" name="lock-closed" size="large"></ion-icon>
                 <ion-input-password-toggle class="login-icon-right" slot="end"></ion-input-password-toggle>
               </ion-input>
@@ -62,14 +62,14 @@
               </ion-select>
             </div>
           </div>
-          <div class="row error" *ngIf="loginError">
-            <div class="mx-auto">
-              {{errorMsg}}
+          <div class="row error" id="login-error" role="alert" aria-atomic="true">
+            <div class="mx-auto" [hidden]="!loginError">
+              {{ errorMsgKey | translate }}
             </div>
           </div>
           <div class="row">
             <div class="col mx-auto">
-              <ion-button class="access-btn" shape="round" type="submit">{{ 'home.access' | translate }}</ion-button>
+              <ion-button id="login-access" class="access-btn" shape="round" type="submit">{{ 'home.access' | translate }}</ion-button>
             </div>
           </div>
         </div>
@@ -84,10 +84,10 @@
           <h1 class="co-black">{{ 'home.instanceSelection' | translate }}</h1>
         </div>
         <div class="row">
-          <ion-input class="mx-auto co-black" type="url" [(ngModel)]="instanceDB"></ion-input>
+          <ion-input id="instance-url" class="mx-auto co-black" type="url" [(ngModel)]="instanceDB"></ion-input>
         </div>
         <div class="row mx-auto">
-          <ion-button (click)="saveInstance()">{{ 'home.registerInstance' | translate }}</ion-button>
+          <ion-button id="instance-register" (click)="saveInstance()">{{ 'home.registerInstance' | translate }}</ion-button>
         </div>
       </div>
     </ng-template>

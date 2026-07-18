@@ -1,12 +1,14 @@
 {
-    "home":{
+    "home": {
         "access": "Acceder",
         "instanceSelection": "Introduzca url de instancia",
         "registerInstance": "Registrar",
         "user": "Usuario",
         "password": "Contraseña",
         "selectUser": "Selecciona usuario",
-        "cancel": "Cancelar"
+        "cancel": "Cancelar",
+        "loginError": "Usuario o contraseña incorrectos",
+        "instanceRequired": "No se ha registrado una instancia"
     },
     "applist": {
         "title": "Aplicaciones",
@@ -44,7 +46,6 @@
         "storageData": "Datos almacenados",
         "bgLayer": "Capas base",
         "editLayer": "Capas editables"
-
     },
     "map": {
         "title": "Mapa",
@@ -66,7 +67,7 @@
             "gallery": "Abrir galería",
             "picture": "Tomar foto"
         },
-        "downloadLayers": "Capas descargadas" 
+        "downloadLayers": "Capas descargadas"
     },
     "exit": {
         "title": "Salir",
@@ -74,7 +75,7 @@
         "exit": "Salir",
         "continue": "Continuar"
     },
-    "menu":{
+    "menu": {
         "title": "Perfil",
         "exit": "Cerrar sesión"
     },

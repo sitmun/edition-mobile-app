@@ -1,6 +1,6 @@
   <ion-header [translucent]="true">
     <ion-toolbar>
-      <ion-title>{{ 'applist.title' | translate }}</ion-title>
+      <ion-title id="applist-title">{{ 'applist.title' | translate }}</ion-title>
       <ion-buttons slot="end">
         <ion-button *ngIf="!networkConnected" class="offlineButton">
           <ion-icon name="cloud-offline-outline" slot="start"></ion-icon>

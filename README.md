@@ -42,6 +42,14 @@ Añadir plataforma para compilar en Android:
 ionic cap add android
 ```
 
+## AUTHENTICATION AND PROXY
+
+Environment files set `authenticationPath` (default `/api/authenticate/mobile`).
+
+Login stores an in-memory `access_token` for backend client configuration and exchanges it at `POST /api/authenticate/proxy` for a short-lived `proxy_token` used only on the middleware origin. Authorization headers are attached only when the request origin exactly matches the selected backend or middleware origin.
+
+MBTiles estimate/create/status/file call `/proxy/{appId}/{terId}/mbtiles...` on the middleware base derived from the instance URL (`…/backend` → sibling `…/middleware`). Requests send service and layer IDs, never tile-source URLs.
+
 ## CONFIGURACIONES
 
 1\. **Copiar configuraciones SO**

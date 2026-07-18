@@ -1,12 +1,14 @@
 {
-    "home":{
+    "home": {
         "access": "Accéder",
         "instanceSelection": "Entrez l’URL de l’instance",
         "registerInstance": "Enregistrer",
         "user": "Utilisateur",
         "password": "Mot de passe",
         "selectUser": "Sélectionner l'utilisateur",
-        "cancel": "Annuler"
+        "cancel": "Annuler",
+        "loginError": "Nom d'utilisateur ou mot de passe incorrect",
+        "instanceRequired": "Aucune instance n'a été enregistrée"
     },
     "applist": {
         "title": "Applications",
@@ -65,7 +67,7 @@
             "gallery": "Ouvrir la galerie",
             "picture": "Prendre une photo"
         },
-        "downloadLayers": "Couches téléchargées" 
+        "downloadLayers": "Couches téléchargées"
     },
     "exit": {
         "title": "Quitter",
@@ -73,8 +75,7 @@
         "exit": "Quitter",
         "continue": "Continuer"
     },
-
-    "menu":{
+    "menu": {
         "title": "Profil",
         "exit": "Se déconnecter"
     },

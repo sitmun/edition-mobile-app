@@ -35,7 +35,7 @@ export class HomePage implements OnInit, OnDestroy {
     users: new Array()
   }
   loginError = false;
-  errorMsg = '';
+  errorMsgKey = '';
   dbinit = false;
   isModalOpen = false;
   instanceDB: string = '';
@@ -117,17 +117,19 @@ export class HomePage implements OnInit, OnDestroy {
           if (resp) {
             this.login(formValue);
           } else {
-            this.errorMsg = 'Usuario o contraseña incorrectos';
+            this.errorMsgKey = 'home.loginError';
             this.loginError = true;
           }
         }).catch(error => {
           console.error('Login error:', error);
+          this.errorMsgKey = 'home.loginError';
+          this.loginError = true;
         });
       } else {
         this.login(formValue);
       }
     } else {
-      this.errorMsg = 'No se ha registrado una instancia';
+      this.errorMsgKey = 'home.instanceRequired';
       this.loginError = true;
     }
   }

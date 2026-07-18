@@ -1,12 +1,14 @@
 {
-    "home":{
+    "home": {
         "access": "Accedir",
         "instanceSelection": "Introdueix l’URL de la instància",
         "registerInstance": "Registrar",
         "user": "Usuari",
         "password": "Contrasenya",
         "selectUser": "Selecciona usuari",
-        "cancel": "Cancel·lar"
+        "cancel": "Cancel·lar",
+        "loginError": "Usuari o contrasenya incorrectes",
+        "instanceRequired": "No s'ha registrat cap instància"
     },
     "applist": {
         "title": "Aplicacions",
@@ -25,7 +27,7 @@
         "minx": "Min x",
         "miny": "Min y",
         "maxx": "Max x",
-        "maxy": "Max y", 
+        "maxy": "Max y",
         "selectProj": "Projecció",
         "toast": "Descàrrega amb èxit",
         "storagePermissionError": "No es tenen permisos per emmagatzemar fitxers al dispositiu",
@@ -36,7 +38,7 @@
         "cancel": "Cancel·lar",
         "dwl-modal-title": "Descàrrega de mapa",
         "dwl-modal-message": "El pes estimat de la descàrrega serà de ",
-        "progress-file": "Descarregant fitxer", 
+        "progress-file": "Descarregant fitxer",
         "progress-request": "Processant petició",
         "delete-modal-title": "Eliminar descàrrega prèvia",
         "delete-modal-message": "¿Està segur de que vol eliminar la descàrrega prèvia?",
@@ -65,15 +67,15 @@
             "gallery": "Obrir galeria",
             "picture": "Fer foto"
         },
-        "downloadLayers": "Capes descarregades" 
+        "downloadLayers": "Capes descarregades"
     },
     "exit": {
         "title": "Sortir",
         "message": "Sortir de l'aplicació?",
         "exit": "Sortir",
         "continue": "Continuar"
-    },    
-    "menu":{
+    },
+    "menu": {
         "title": "Perfil",
         "exit": "Tancar sessió"
     },
