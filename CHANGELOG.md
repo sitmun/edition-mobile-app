@@ -4,20 +4,14 @@
 
 ### Added
 
-- Configurable `authenticationPath` (default `/api/authenticate/mobile`)
-- Viewer-style two-token lifecycle: `access_token` for backend, `proxy_token` for middleware
-- Trusted-origin Authorization helper (exact origin match only)
-- MBTiles estimate/create/status/file through authenticated middleware routes using service/layer IDs
-
-### Fixed
-
-- Failed mobile login (HTTP reject) shows the login error message instead of failing silently
-- Login validation errors use i18n keys (`home.loginError`, `home.instanceRequired`) instead of hardcoded Spanish
+- **Auth**: Configurable `authenticationPath` (default `/api/authenticate/mobile`); two-token lifecycle (`access_token` for backend, `proxy_token` for middleware); trusted-origin Authorization helper (exact origin match).
+- **MBTiles**: Estimate/create/status/file through authenticated middleware routes using service/layer IDs.
 
 ### Changed
 
-- Login response field is `access_token` (not `id_token`)
-- MBTiles downloads use Capacitor HTTP `downloadFile` with Bearer headers
-- Removed direct `config.mbtilesUrl` usage and `backend`→`middleware` string rewrite for estimates
-- Map/resource proxy URLs use the same middleware base as MBTiles (`…/middleware/proxy/{app}/{ter}/…`); removed dead `localhost:8080/proxy` default and unused `setProxyUrl`
-- Bearer attachment matches trusted **base URL path prefixes** (middleware checked first) so same-origin gateways send `proxy_token` to `/middleware/**` and `access_token` to `/backend/**`
+- **Auth**: Login field is `access_token` (not `id_token`); Bearer attachment matches trusted base URL path prefixes (middleware first) so gateways send `proxy_token` to `/middleware/**` and `access_token` to `/backend/**`.
+- **MBTiles** / **Proxy**: Downloads use Capacitor HTTP `downloadFile` with Bearer; map/resource and MBTiles URLs share the middleware base (`…/middleware/proxy/{app}/{ter}/…`); removed `config.mbtilesUrl`, backend→middleware string rewrite, and dead `localhost:8080/proxy` default.
+
+### Fixed
+
+- **Auth** / **i18n**: Failed login shows an error message; validation errors use i18n keys (`home.loginError`, `home.instanceRequired`) instead of hardcoded Spanish.
