@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { Location } from '@angular/common';
+import { applicationListLabel } from 'src/app/application-list-label';
 import { LanguageService } from 'src/app/services/language.service';
 import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
 import { AuthorizationService } from 'src/app/services/authorization.service';
@@ -209,7 +210,11 @@ export class DownloadPage implements OnInit {
 
     //almacena en base de datos
     const base64 = await this.convertImageToBase64(this.app.logo);
-    await this.databaseService.insertApp(this.app.id, this.app.title, base64);
+    await this.databaseService.insertApp(
+      this.app.id,
+      applicationListLabel(this.app),
+      base64
+    );
     await this.databaseService.insertTerritory(this.ter.id, this.app.id, this.ter.name);
   
     await this.databaseService.deleteLayersByAppAndTer(this.app.id, this.ter.id); //eliminar capas previas

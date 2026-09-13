@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NavigationExtras, Router } from '@angular/router';
+import { applicationListLabel } from 'src/app/application-list-label';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import { LanguageService } from 'src/app/services/language.service';
@@ -15,6 +16,7 @@ import { ProfileModalComponent } from 'src/app/components/profile-modal/profile-
 })
 export class ApplistPage implements OnInit {
 
+  readonly applicationListLabel = applicationListLabel;
   messages_: any = {}
   applications: any[] = [];
   territories: any[] = [];
