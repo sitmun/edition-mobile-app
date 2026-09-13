@@ -21,7 +21,7 @@
           </div>
         </div>
         <div class="col-5 item-data my-auto" (click)="mapPage(app)">
-          <h6>{{app['title']}}</h6>
+          <h6>{{ applicationListLabel(app) }}</h6>
         </div>
         <div class="col-1 my-auto">
           <div class="dl-btn mx-auto icono-dwl" *ngIf="app['layersSizeBytes'] > 5">
