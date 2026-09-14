@@ -4,6 +4,8 @@ import { ToastController } from '@ionic/angular';
 import { LanguageService } from './language.service';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { FeatureInfoService } from './feature-info.service';
+import { InstancesService } from './instances.service';
+import { resolveAgainstBase } from './trusted-origin.util';
 
 declare var M: any;
 declare var ol: any;
@@ -21,7 +23,12 @@ export class MapService {
   mapProj = 'EPSG:3857';
   centerMapTransformed: number[] = [] 
 
-  constructor(private toastController: ToastController, private languageService: LanguageService, private featureInfoService: FeatureInfoService) { 
+  constructor(
+    private toastController: ToastController,
+    private languageService: LanguageService,
+    private featureInfoService: FeatureInfoService,
+    private instancesService: InstancesService
+  ) { 
     M.config('SQL_WASM_URL', '/assets/external/api-cnig/');
   }
   //downloadZoom, downloadExtent y selectedProj vendrán con algún valor cuando el método se utilice al iniciar
@@ -200,7 +207,7 @@ export class MapService {
 
   private async applyMapBackgroundsAndLayers(mapa: any, profile: any) {
     //this.applyMapBackgrounds(mapa, profile);
-    this.applyMapLayers(mapa, profile);
+    await this.applyMapLayers(mapa, profile);
   }
 
   private applyMapBackgrounds(mapa: any, profile: any) {
@@ -217,13 +224,13 @@ export class MapService {
     this.createBackgroundPlugin(mapa, mapBg);
   }
 
-  private applyMapLayers(mapa: any, profile: any) {
+  private async applyMapLayers(mapa: any, profile: any) {
     const trees: any[] = profile.trees;
     const layers: any[] = profile.layers;
     const services: any[] = profile.services;
     const tasks: any[] = profile.tasks;
     const groupLayers: any[] = [];
-    trees.forEach((t: any) => {
+    for (const t of trees) {
       const gLayers: any[] = [];
       const groupOpts = {
         name: t.title,
@@ -234,18 +241,18 @@ export class MapService {
       const treeNodes = t.nodes;
       if (rootNode.includes('/tree/')) { //root "falso"
         const children = treeNodes[rootNode].children;
-        children.forEach((c: string) => {
+        for (const c of children) {
           const node = treeNodes[c];
-          let MLayer = this.processCartographyNode(node, treeNodes, layers, services, tasks);          
+          const MLayer = await this.processCartographyNode(node, treeNodes, layers, services, tasks);
           groupOpts.layers.push(MLayer);
-        });
+        }
       } else {
         const node = treeNodes[rootNode];
-        let MLayer = this.processCartographyNode(node, treeNodes, layers, services, tasks);
+        const MLayer = await this.processCartographyNode(node, treeNodes, layers, services, tasks);
         groupOpts.layers.push(MLayer);
       }
       groupLayers.push(new M.layer.LayerGroup(groupOpts));
-    });
+    }
     mapa.addLayers(groupLayers);
     //this.createTOCPlugin(mapa);
   }
@@ -282,7 +289,7 @@ export class MapService {
     return bgLayers;
   }
 
-  private processCartographyNode(node: any, treeNodes: any, layers: any[], services: any[], tasks: any[]) {
+  private async processCartographyNode(node: any, treeNodes: any, layers: any[], services: any[], tasks: any[]) {
     const layerId = node.resource;
     const taskId = node.action;
     let result;
@@ -298,7 +305,7 @@ export class MapService {
         groupLayers.push(this.createLayer(service, layer));
       }
       if (task) {
-        groupLayers.push(this.createLayerByTask(task));
+        groupLayers.push(await this.createLayerByTask(task));
       }
       const groupOpts = {
         name: node.title,
@@ -314,11 +321,11 @@ export class MapService {
         layers: groupLayers
       };
       const children = node.children;
-      children.forEach((c: string) => {
-        const node = treeNodes[c];
-        let MLayer = this.processCartographyNode(node, treeNodes, layers, services, tasks);
+      for (const c of children) {
+        const child = treeNodes[c];
+        const MLayer = await this.processCartographyNode(child, treeNodes, layers, services, tasks);
         groupOpts.layers.push(MLayer);
-      });
+      }
       result = new M.layer.LayerGroup(groupOpts);
     }
     return result;
@@ -339,9 +346,10 @@ export class MapService {
     return result;
   }
 
-  createLayerByTask(task: any) {
+  async createLayerByTask(task: any) {
+    const middlewareBase = await this.instancesService.getMiddlewareBaseUrl();
     let layerOptions = {
-      url: task.url,
+      url: resolveAgainstBase(task.url, middlewareBase),
       name: task.parameters.typename.value,
       isBase: false,
       displayInLayerSwitcher: true,
