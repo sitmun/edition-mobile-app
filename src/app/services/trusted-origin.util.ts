@@ -6,6 +6,21 @@ export function exactOrigin(url: string): string | null {
   }
 }
 
+/** Join a profile proxy path onto the middleware base. Path-absolute `new URL(path, base)` drops `/middleware`. */
+export function resolveAgainstBase(url: string, base: string | null): string {
+  if (!url || /^https?:\/\//i.test(url)) {
+    return url;
+  }
+  if (!base) {
+    return url;
+  }
+  const trimmedBase = base.replace(/\/+$/, '');
+  if (url.startsWith('/')) {
+    return `${trimmedBase}${url}`;
+  }
+  return `${trimmedBase}/${url}`;
+}
+
 /** True when `url` is same-origin as `base` and under its path prefix. */
 export function matchesTrustedBase(url: string, base: string | null): boolean {
   if (!base) {

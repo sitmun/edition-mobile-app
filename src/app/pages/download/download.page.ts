@@ -13,6 +13,7 @@ import { ProxyService } from 'src/app/services/proxy.service';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { InstancesService } from 'src/app/services/instances.service';
 import { MapService } from 'src/app/services/map.service';
+import { resolveAgainstBase } from 'src/app/services/trusted-origin.util';
 import { Device } from '@capacitor/device';
 import { ProfileModalComponent } from 'src/app/components/profile-modal/profile-modal.component';
 
@@ -133,7 +134,8 @@ export class DownloadPage implements OnInit {
         if (cl.action) {
           const task = this.profile.tasks.find((t: any) => t.id === cl.action);
           const layerName = task.parameters.typename.value;
-          const resp = await this.wfsService.getFeatures(task.url, layerName, extent, this.mapProjSelected);
+          const resp = await this.wfsService.getFeatures(
+            await this.resolveWfsUrl(task.url), layerName, extent, this.mapProjSelected);
           const layer = {
             id: this.app.id,
             territory: this.ter.id,
@@ -257,7 +259,8 @@ export class DownloadPage implements OnInit {
   async loadFeaturesByLayer(layerId: string, fields: any, extent: string, mapProj: string, zoom: number) {
     const layer = this.profile.layers.find((l: any) => l.id === layerId);
     const service = this.profile.services.find((s: any) => s.id === layer.service);
-    const resp = await this.wfsService.getFeatures(service.url, layer.layers[0], extent, mapProj);
+    const resp = await this.wfsService.getFeatures(
+      await this.resolveWfsUrl(service.url), layer.layers[0], extent, mapProj);
     console.log(resp.data);
     await this.databaseService.insertLayer(this.app.id, this.ter.id, layerId, layer.title, JSON.stringify(fields), JSON.stringify(resp.data), extent, zoom, mapProj);
   }
@@ -265,7 +268,8 @@ export class DownloadPage implements OnInit {
   async loadFeaturesByTask(taskId: string, fields: any, extent: string, mapProj: string, zoom: number) {
     const task = this.profile.tasks.find((t: any) => t.id === taskId);
     const valueName = task.parameters.typename.value;    
-    const resp = await this.wfsService.getFeatures(task.url, valueName, extent, mapProj);
+    const resp = await this.wfsService.getFeatures(
+      await this.resolveWfsUrl(task.url), valueName, extent, mapProj);
     console.log(resp.data);
     
     let layer: any = null;
@@ -529,6 +533,10 @@ export class DownloadPage implements OnInit {
 
   hideLoading() {
     this.loadingCtrl.dismiss();
+  }
+
+  private async resolveWfsUrl(url: string): Promise<string> {
+    return resolveAgainstBase(url, await this.instancesService.getMiddlewareBaseUrl());
   }
 
 }

@@ -2,13 +2,19 @@ import { Injectable } from '@angular/core';
 import { Http } from '@capacitor-community/http';
 import { create, convert } from 'xmlbuilder2';
 import { ObjectWriterOptions, XMLBuilder, XMLSerializedAsObject } from 'xmlbuilder2/lib/interfaces';
+import { InstancesService } from './instances.service';
+import { LoginService } from './login.service';
+import { authHeadersForUrl } from './trusted-origin.util';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WfsService {
 
-  constructor() { }
+  constructor(
+    private instancesService: InstancesService,
+    private loginService: LoginService
+  ) { }
 
   getFeatures(url: string, layerName: string, extent: string, mapProj: string) {
     const options: any = {
@@ -63,14 +69,23 @@ export class WfsService {
     return `${layer.name}: Unexpected error ${resp.status}`;
   }
 
-  private request(options: any) {
-    return new Promise<any>((resolve, reject) => {
-      Http.request(options).then(resp => {
-        resolve(resp);
-      }).catch(error => {
-        reject(error);
-      });
-    });
+  private async authHeaders(url: string) {
+    return authHeadersForUrl(
+      url,
+      await this.instancesService.getInstanceUrl(),
+      await this.instancesService.getMiddlewareBaseUrl(),
+      this.loginService.getAccessToken(),
+      this.loginService.getProxyToken()
+    );
+  }
+
+  private async request(options: any) {
+    await this.loginService.ensureProxyToken();
+    const headers = {
+      ...options.headers,
+      ...(await this.authHeaders(options.url))
+    };
+    return Http.request({ ...options, headers });
   }
 
   async createWFSTrasaction(featuresEdition: any, typeName: string, describeFeatureUrl: string, mapProj: string) {
