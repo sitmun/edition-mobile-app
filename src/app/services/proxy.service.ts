@@ -137,12 +137,6 @@ export class ProxyService {
   }
 
   private request(options: any) {
-    return new Promise<any>((resolve, reject) => {
-      Http.request(options).then(resp => {
-        resolve(resp);
-      }).catch(error => {
-        reject(error);
-      });
-    });
+    return Http.request(options);
   }
 }
