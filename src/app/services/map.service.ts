@@ -333,14 +333,17 @@ export class MapService {
 
   createLayer(service: any, layer: any, base: boolean = false) {
     let layerOptions = {
-      url: service.url,
+      url: layer.url || service.url,
       name: layer.layers[0],
       legend: layer.title,
       isBase: base,
       displayInLayerSwitcher: !base,
       visible: true
     };
-    const result = this.buildLayerByType(service.type, layerOptions, service.parameters);
+    const result = this.buildLayerByType(service.type, layerOptions, {
+      ...service.parameters,
+      ...layer.parameters
+    });
     result.idLayer = layer.id;
     console.log(`Creado layer: ${layerOptions}`);
     return result;

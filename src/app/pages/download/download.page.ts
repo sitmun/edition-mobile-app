@@ -260,7 +260,7 @@ export class DownloadPage implements OnInit {
     const layer = this.profile.layers.find((l: any) => l.id === layerId);
     const service = this.profile.services.find((s: any) => s.id === layer.service);
     const resp = await this.wfsService.getFeatures(
-      await this.resolveWfsUrl(service.url), layer.layers[0], extent, mapProj);
+      await this.resolveWfsUrl(layer.url || service.url), layer.layers[0], extent, mapProj);
     console.log(resp.data);
     await this.databaseService.insertLayer(this.app.id, this.ter.id, layerId, layer.title, JSON.stringify(fields), JSON.stringify(resp.data), extent, zoom, mapProj);
   }
