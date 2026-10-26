@@ -1,14 +1,18 @@
-import { Http } from '@capacitor-community/http';
+import { CapacitorHttp } from '@capacitor/core';
 import { TestBed } from '@angular/core/testing';
 import { InstancesService } from './instances.service';
 import { LoginService } from './login.service';
 import { WfsService } from './wfs.service';
 
-jest.mock('@capacitor-community/http', () => ({
-  Http: {
-    request: jest.fn()
-  }
-}));
+jest.mock('@capacitor/core', () => {
+  const actual = jest.requireActual('@capacitor/core');
+  return {
+    ...actual,
+    CapacitorHttp: {
+      request: jest.fn()
+    }
+  };
+});
 
 describe('WfsService', () => {
   let service: WfsService;
@@ -33,7 +37,7 @@ describe('WfsService', () => {
       getProxyToken: jest.fn().mockReturnValue('proxy-jwt')
     };
 
-    (Http.request as jest.Mock).mockResolvedValue({
+    (CapacitorHttp.request as jest.Mock).mockResolvedValue({
       data: { type: 'FeatureCollection', features: [] },
       status: 200,
       headers: {},
@@ -51,7 +55,7 @@ describe('WfsService', () => {
   });
 
   afterEach(() => {
-    (Http.request as jest.Mock).mockReset();
+    (CapacitorHttp.request as jest.Mock).mockReset();
   });
 
   it('sends GetFeature to middleware with the proxy Bearer token', async () => {
@@ -62,7 +66,7 @@ describe('WfsService', () => {
       'EPSG:3857'
     );
     expect(login.ensureProxyToken).toHaveBeenCalled();
-    expect(Http.request).toHaveBeenCalledWith(
+    expect(CapacitorHttp.request).toHaveBeenCalledWith(
       expect.objectContaining({
         url: 'https://gw.example.com/middleware/proxy/20/4/WFS/177',
         headers: expect.objectContaining({ Authorization: 'Bearer proxy-jwt' }),

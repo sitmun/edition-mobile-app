@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@capacitor-community/http';
+import { CapacitorHttp } from '@capacitor/core';
 import { environment } from 'src/environments/environment';
 import { DatabaseService } from './database.service';
 import { InstancesService } from './instances.service';
@@ -96,7 +96,7 @@ export class LoginService {
 
   private request(options: any, callback: Function) {
     return new Promise<any>((resolve, reject) => {
-      Http.request(options).then(data => {
+      CapacitorHttp.request(options).then(data => {
         resolve(callback(data));
       }).catch(error => {
         reject(error);
