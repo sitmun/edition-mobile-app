@@ -150,12 +150,12 @@
         <div class="row">
           <p class="text-dark">{{ 'download.dwl-modal-message' | translate }} <strong>{{ estimatedSize | number: '1.1-1' }}</strong> MB.</p>
         </div>
-        <div class="row" *ngIf="freeSpaceMB < estimatedSize">
+        <div class="row" *ngIf="freeSpaceMB !== null && freeSpaceMB < estimatedSize">
           <p class="text-danger">{{ 'download.no-freespace' | translate }}</p>
         </div>
         <div class="row">
           <div class="col">
-            <ion-button [disabled]="freeSpaceMB < estimatedSize" expand="block" (click)="downloadLayers()">{{ 'download.accept' | translate }}</ion-button>
+            <ion-button [disabled]="freeSpaceMB !== null && freeSpaceMB < estimatedSize" expand="block" (click)="downloadLayers()">{{ 'download.accept' | translate }}</ion-button>
           </div>
           <div class="col">
             <ion-button expand="block" (click)="closeDownloadModal()">{{ 'download.cancel' | translate }}</ion-button>

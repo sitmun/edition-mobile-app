@@ -9,12 +9,14 @@
 
 ### Changed
 
+- **Android**: Capacitor 8 targets API 36. HTTP calls use `CapacitorHttp`. MBTiles download uses `Filesystem.downloadFile`. SQLite uses `sqlcipher-android` with encryption still off. Download free-space uses `navigator.storage.estimate` because `@capacitor/device` 8 no longer returns `realDiskFree`.
 - **WFS**: Map layers and offline feature download use `layer.url` when the profile sets a per-layer proxy address ([sitmun-application-stack#90](https://github.com/sitmun/sitmun-application-stack/issues/90)).
 - **Auth**: Login field is `access_token` (not `id_token`); Bearer attachment matches trusted base URL path prefixes (middleware first) so gateways send `proxy_token` to `/middleware/**` and `access_token` to `/backend/**`.
 - **MBTiles** / **Proxy**: Downloads use Capacitor HTTP `downloadFile` with Bearer; map/resource and MBTiles URLs share the middleware base (`…/middleware/proxy/{app}/{ter}/…`); removed `config.mbtilesUrl`, backend→middleware string rewrite, and dead `localhost:8080/proxy` default.
 
 ### Fixed
 
+- **Login**: Size the fields and access button against the page, and style them with Ionic variables, instead of viewport widths on the host.
 - **Applications**: Main list and offline cache show `name` when `title` is null ([#5](https://github.com/sitmun/edition-mobile-app/issues/5)).
 - **WFS**: Relative `/proxy/{app}/{ter}/WFS/{id}` task URLs resolve against the middleware base instead of the Capacitor WebView origin. GetFeature/Transaction send `Authorization: Bearer` for the middleware origin ([#6](https://github.com/sitmun/edition-mobile-app/issues/6)).
 - **Auth** / **i18n**: Failed login shows an error message; validation errors use i18n keys (`home.loginError`, `home.instanceRequired`) instead of hardcoded Spanish.

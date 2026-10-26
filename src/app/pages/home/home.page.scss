@@ -11,6 +11,8 @@ ion-content {
   left: 0;
   right: 0;
   height: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   background-color: orange;
 }
 
@@ -39,14 +41,16 @@ ion-content {
 }
 
 .login-input {
-  width: 70vw;
+  display: block;
+  width: 70%;
+  margin-inline: auto;
   color: black;
-  background-color: white;
-  border-radius: 26px;
-}
-
-::ng-deep .login-input input {
-  padding: 0 50px !important;
+  --background: white;
+  --color: black;
+  --border-radius: 26px;
+  --padding-start: 50px;
+  --padding-end: 48px;
+  overflow: hidden;
 }
 
 #instance-selector {
@@ -91,8 +95,11 @@ ion-grid {
 }
 
 .access-btn {
+  display: block;
+  width: 50%;
+  margin-inline: auto;
   --background: coral;
-  width: 50vw;
+  overflow: hidden;
 }
 
 .instanceBtn {
@@ -108,16 +115,9 @@ ion-grid {
   --background: coral;
 }
 
-.login-icon-left {
-  color: orange;
-  position: absolute;
-  left: 10px;
-}
-
+.login-icon-left,
 .login-icon-right {
   color: orange;
-  position: absolute;
-  right: 10px;
 }
 
 .row {

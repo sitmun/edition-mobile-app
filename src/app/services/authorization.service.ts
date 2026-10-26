@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@capacitor-community/http';
+import { CapacitorHttp } from '@capacitor/core';
 import { InstancesService } from './instances.service';
 import { LoginService } from './login.service';
 import { authHeadersForUrl } from './trusted-origin.util';
@@ -93,7 +93,7 @@ export class AuthorizationService {
 
   private request(options: any, callback: Function) {
     return new Promise<any>((resolve, reject) => {
-      Http.request(options).then(resp => {
+      CapacitorHttp.request(options).then(resp => {
         resolve(callback(resp));
       }).catch(error => {
         reject(error);

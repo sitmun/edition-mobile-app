@@ -15,11 +15,12 @@ utilizando el **framework Ionic**, en conjunto con **Angular** para la construcc
 | npm (Node Package Manager) | 10.x                  | Se instala con Node.js                                   |
 | Ionic CLI                  | 7.x                   | <https://ionicframework.com/>                            |
 | Angular CLI                | 19.x                  | <https://angular.dev/installation>                       |
-| Capacitor                  | 6.x                   | Incluido en Ionic                                        |
-| Java JDK                   | 17.x                  | <https://www.oracle.com/es/java/technologies/downloads/> |
-| Android SDK                | 34.x                  | <https://developer.android.com/studio?hl=es-419>         |
+| Capacitor                  | 8.x                   | Incluido en Ionic                                        |
+| Java JDK                   | 21.x                  | Capacitor 7 y 8. Android Studio Ladybug o posterior lo incluye |
+| Android SDK                | 36.x                  | <https://developer.android.com/studio?hl=es-419>         |
+| Android Studio             | Otter 2025.2.1 o posterior | Requerido por Capacitor 8                           |
 | Git                        | Cualquiera compatible | Para clonar el repositorio                               |
-| Dispositivo móvil Android  | Android 13.x          | Para pruebas físicas                                     |
+| Dispositivo móvil Android  | Android 7.0 o posterior | `minSdk` 24. La comprobación de Play es en Android 16 |
 
 
 ## CLONACIÓN DEL PROYECTO
@@ -56,7 +57,7 @@ MBTiles estimate/create/status/file call `/proxy/{appId}/{terId}/mbtiles...` on 
 
 **Android:**
 
-Copiar el fichero /resources/android/AndroidManifest.xml en /android/app/src/main
+No copies `resources/android/AndroidManifest.xml` encima del manifiesto generado. Ese fichero es el de Capacitor 6 y sustituye la activity de Capacitor 8. Parte del manifiesto generado y añade `android:largeHeap="true"`, `CAMERA`, `ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION` y la feature GPS.
 
 
 ## COMPILAR Y EJECUTAR EN ANDROID

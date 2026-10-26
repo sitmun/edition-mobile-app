@@ -14,7 +14,6 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { InstancesService } from 'src/app/services/instances.service';
 import { MapService } from 'src/app/services/map.service';
 import { resolveAgainstBase } from 'src/app/services/trusted-origin.util';
-import { Device } from '@capacitor/device';
 import { ProfileModalComponent } from 'src/app/components/profile-modal/profile-modal.component';
 
 declare var ol: any;
@@ -42,7 +41,7 @@ export class DownloadPage implements OnInit {
   profile: any = {};
   layersSizeBytes: number = 0;
   layersSizeMBytes: number = 0;
-  freeSpaceMB: number = 0;
+  freeSpaceMB: number | null = null;
   estimatedSize: number = 0;
   mapProj: string[] = ['EPSG:3857', 'EPSG:4326', 'EPSG:25831', 'EPSG:25830'];
   mapProjSelected: string = '';
@@ -159,12 +158,13 @@ export class DownloadPage implements OnInit {
       this.estimatedSize += Math.round(resp.data.estimatedMbtilesSizeMb * 10) / 10;
 
       //comprobar espacio disponible
-      const info = await Device.getInfo();
-      if (info.realDiskFree) {
-        this.freeSpaceMB = Math.round(info.realDiskFree/ (1024 * 1024) * 10) / 10;  //espacio libre en MB
-        console.log('Espacio libre en disco:', this.freeSpaceMB);
-      }else{
-        console.log('No se pudo obtener información del disco');
+      const estimate = navigator.storage?.estimate
+        ? await navigator.storage.estimate()
+        : null;
+      if (estimate?.quota != null && estimate.usage != null) {
+        this.freeSpaceMB = Math.round((estimate.quota - estimate.usage) / (1024 * 1024) * 10) / 10;
+      } else {
+        this.freeSpaceMB = null;
       }
       this.alertModalOpen = true; //abre modal de descarga
     }    

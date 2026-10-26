@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@capacitor-community/http';
+import { CapacitorHttp } from '@capacitor/core';
 import { create, convert } from 'xmlbuilder2';
 import { ObjectWriterOptions, XMLBuilder, XMLSerializedAsObject } from 'xmlbuilder2/lib/interfaces';
 import { InstancesService } from './instances.service';
@@ -85,7 +85,7 @@ export class WfsService {
       ...options.headers,
       ...(await this.authHeaders(options.url))
     };
-    return Http.request({ ...options, headers });
+    return CapacitorHttp.request({ ...options, headers });
   }
 
   async createWFSTrasaction(featuresEdition: any, typeName: string, describeFeatureUrl: string, mapProj: string) {
