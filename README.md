@@ -2,5 +2,5 @@
 
 # SITMUN Edition Mobile Application
 
-Description.
+Android application for editing SITMUN data offline, version 1.2.x.
 
