@@ -1,4 +1,4 @@
-> **Archived.** This is the 1.2.x code. Since SITMUN 1.3.0 it is maintained in [sitmun/sitmun](https://github.com/sitmun/sitmun), folder [`sitmun-mobile/sitmun-edition`](https://github.com/sitmun/sitmun/tree/main/sitmun-mobile/sitmun-edition), which imported this repository's history. This repository is read-only and receives no further changes; the instructions below describe the archived code. Documentation: [https://sitmun.github.io](https://sitmun.github.io).
+> **Archived.** This branch holds the code up to its import into SITMUN 1.3.0, so it also contains fixes first released in 1.3.0. Since 1.3.0 it is maintained in [sitmun/sitmun](https://github.com/sitmun/sitmun), folder [`sitmun-mobile/sitmun-edition`](https://github.com/sitmun/sitmun/tree/main/sitmun-mobile/sitmun-edition), which imported this repository's history. This repository is read-only and receives no further changes; the instructions below describe the archived code. Documentation: [https://sitmun.github.io](https://sitmun.github.io).
 
 # SITMUN Edition Mobile Application
 
